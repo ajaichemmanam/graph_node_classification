@@ -35,12 +35,12 @@ def create_model(model_type, num_features, num_classes):
 def main():
     # Set random seed for reproducibility
     set_seed(ModelConfig.seed)
-    
+
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load data
-    dataset, data = load_data(root='data',name=ModelConfig.dataset_name, device=device)
+    dataset, data = load_data(root="data", name=ModelConfig.dataset_name, device=device)
 
     # Initialize model
     model = create_model(
@@ -62,15 +62,17 @@ def main():
 
     # Initialize trainer and early stopping
     trainer = Trainer(model, optimizer, device)
-    early_stopping = EarlyStopping(patience=ModelConfig.patience)
+    early_stopping = EarlyStopping(
+        patience=ModelConfig.patience, model_path=ModelConfig.checkpoint_path
+    )
 
     # Training loop
     for epoch in range(1, ModelConfig.epochs + 1):
         loss = trainer.train_step(data)
         train_acc, val_acc, test_acc = trainer.test(data)
 
-        # Early stopping check
-        if early_stopping(val_acc, test_acc):
+        # Early stopping check with model saving
+        if early_stopping(val_acc, test_acc, model):
             print(f"Early stopping at epoch {epoch}")
             break
 

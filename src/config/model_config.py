@@ -8,6 +8,7 @@ class ModelConfig:
     # General training parameters
     epochs: int = 200
     patience: int = 20
+    checkpoint_path: str = "checkpoints/best_model.pt"
 
     # Model selection
     model_type: Literal["gcn", "sage"] = "sage"
