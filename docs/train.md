@@ -1,15 +1,22 @@
-
 # Training Process
+
+## Command
+
+```bash
+python src/train.py
+```
 
 ## Configuration
 
 ### Model Parameters
+
 - Hidden channels: 64
 - Dropout rate: 0.5
 - Learning rate: 0.01
 - Weight decay: 5e-4
 
 ### Training Settings
+
 - Maximum epochs: 200
 - Early stopping:
   - Patience: 20
@@ -21,6 +28,7 @@
 ## Training Pipeline
 
 ### 1. Initialization
+
 ```python
 # Set random seed for reproducibility
 set_seed(42)
@@ -42,6 +50,7 @@ optimizer = torch.optim.Adam(
 ```
 
 ### 2. Training Loop
+
 - For each epoch:
   1. Forward pass and loss calculation using NLL loss
   2. Backward pass and parameter updates
@@ -50,6 +59,7 @@ optimizer = torch.optim.Adam(
   5. Save best model if monitored metric improves
 
 ### 3. Early Stopping
+
 - Monitors validation metric (configurable: loss or accuracy)
 - Saves best model state to configured checkpoint path
 - Stops training if no improvement for specified patience period

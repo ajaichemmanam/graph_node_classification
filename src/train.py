@@ -30,9 +30,7 @@ def main():
         device=device,
     )
 
-    print(
-        f"Training {Config.model_type.upper()} model on {Config.dataset_name} dataset"
-    )
+    print(f"Training {Config.model_type.upper()} model")
 
     # Initialize optimizer
     optimizer = torch.optim.Adam(

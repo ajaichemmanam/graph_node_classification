@@ -1,5 +1,11 @@
 # Model Loading and Inference
 
+### Command
+
+```bash
+python src/infer.py
+```
+
 ### Loading Saved Model
 
 ```python

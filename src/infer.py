@@ -29,14 +29,19 @@ def main():
         num_classes=dataset.num_classes,
         device=device,
     )
+    print(f"Loaded {Config.model_type.upper()} model from {Config.checkpoint_path}")
 
     # Perform inference
     predictions = inference(model, data)
     print(f"Predictions: {predictions}")
     label = data.y
     print(f"True labels: {label}")
-    accuracy = (predictions == label).float().mean()
-    print(f"Accuracy: {accuracy:.4f}")
+
+    # Calculate accuracy only on test set
+    test_accuracy = (
+        (predictions[data.test_mask] == label[data.test_mask]).float().mean()
+    )
+    print(f"Test Accuracy: {test_accuracy:.4f}")
 
 
 if __name__ == "__main__":
