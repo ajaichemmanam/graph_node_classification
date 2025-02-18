@@ -1,27 +1,47 @@
 import torch
 import os
+from dataclasses import dataclass
 
+
+@dataclass
 class EarlyStopping:
-    def __init__(self, patience=20, model_path='checkpoints/best_model.pt'):
-        self.patience = patience
-        self.counter = 0
-        self.best_val_acc = 0
-        self.best_test_acc = 0
-        self.model_path = model_path
-        
-        # Create checkpoints directory if it doesn't exist
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    patience: int
+    monitor: str
+    model_path: str
+    mode: str = "max"
+    best_score: float | None = None
+    counter: int = 0
+    best_test_metric: float | None = None
 
-    def __call__(self, val_acc, test_acc, model):
-        if val_acc > self.best_val_acc:
-            self.best_val_acc = val_acc
-            self.best_test_acc = test_acc
+    def __post_init__(self):
+        if not os.path.exists(os.path.dirname(self.model_path)):
+            os.makedirs(os.path.dirname(self.model_path))
+
+    def __call__(self, val_metric, test_metric, model):
+        score = val_metric
+
+        if self.best_score is None:
+            self.best_score = score
+            self.save_checkpoint(test_metric, model)
+            return False
+
+        if self.mode == "max":
+            improvement = score > self.best_score
+        else:  # mode == 'min'
+            improvement = score < self.best_score
+
+        if improvement:
+            self.best_score = score
             self.counter = 0
-            # Save the model
-            torch.save(model.state_dict(), self.model_path)
+            self.save_checkpoint(test_metric, model)
             return False
         else:
             self.counter += 1
             if self.counter >= self.patience:
                 return True
             return False
+
+    def save_checkpoint(self, test_metric, model):
+        """Save model checkpoint."""
+        torch.save(model.state_dict(), self.model_path)
+        self.best_test_metric = test_metric

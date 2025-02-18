@@ -1,17 +1,21 @@
 from typing import Literal
 
 
-class ModelConfig:
+class Config:
     # Random seed for reproducibility
     seed: int = 42
 
     # General training parameters
     epochs: int = 200
+
+    # Early stopping settings
+    monitor: Literal["accuracy", "loss"] = "loss"  # Monitor metric for early stopping
+    mode: Literal["min", "max"] = "min"  # 'min' for loss, 'max' for accuracy
     patience: int = 20
     checkpoint_path: str = "checkpoints/best_model.pt"
 
     # Model selection
-    model_type: Literal["gcn", "sage"] = "sage"
+    model_type: Literal["gcn", "sage"] = "gcn"
 
     # Model hyperparameters
     hidden_channels: int = 64
@@ -26,3 +30,4 @@ class ModelConfig:
 
     # Dataset parameters
     dataset_name: str = "Cora"
+

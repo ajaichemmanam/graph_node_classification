@@ -11,8 +11,10 @@ class Trainer:
     def train_step(self, data):
         self.model.train()
         self.optimizer.zero_grad()
-        out = self.model(data.x, data.edge_index)
-        loss = F.cross_entropy(out[data.train_mask], data.y[data.train_mask])
+        out = self.model(data)
+        # Apply log_softmax before nll_loss
+        log_prob = F.log_softmax(out, dim=1)
+        loss = F.nll_loss(log_prob[data.train_mask], data.y[data.train_mask])
         loss.backward()
         self.optimizer.step()
         return loss.item()
@@ -20,7 +22,7 @@ class Trainer:
     @torch.no_grad()
     def test(self, data):
         self.model.eval()
-        out = self.model(data.x, data.edge_index)
+        out = self.model(data)
         pred = out.argmax(dim=1)
 
         train_acc = (pred[data.train_mask] == data.y[data.train_mask]).float().mean()

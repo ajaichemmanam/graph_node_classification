@@ -1,7 +1,7 @@
 import torch
 from models import MODEL_REGISTRY
 from data.dataset import load_data
-from config.model_config import ModelConfig
+from config.model_config import Config
 
 
 def load_model(model_path, model_type, num_features, num_classes, device):
@@ -16,17 +16,17 @@ def load_model(model_path, model_type, num_features, num_classes, device):
     if model_type == "sage":
         model = model_class(
             num_features=num_features,
-            hidden_channels=ModelConfig.hidden_channels,
+            hidden_channels=Config.hidden_channels,
             num_classes=num_classes,
-            dropout_rate=ModelConfig.dropout_rate,
-            aggregator=ModelConfig.sage_aggregator,
+            dropout_rate=Config.dropout_rate,
+            aggregator=Config.sage_aggregator,
         )
     else:  # GCN
         model = model_class(
             num_features=num_features,
-            hidden_channels=ModelConfig.hidden_channels,
+            hidden_channels=Config.hidden_channels,
             num_classes=num_classes,
-            dropout_rate=ModelConfig.dropout_rate,
+            dropout_rate=Config.dropout_rate,
         )
 
     model.load_state_dict(torch.load(model_path, weights_only=True))
@@ -37,7 +37,7 @@ def load_model(model_path, model_type, num_features, num_classes, device):
 def inference(model, data):
     """Perform inference using the trained model."""
     model.eval()
-    out = model(data.x, data.edge_index)
+    out = model(data)
     pred = out.argmax(dim=1)
     return pred
 
@@ -47,12 +47,12 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load data
-    dataset, data = load_data(root="data", name=ModelConfig.dataset_name, device=device)
+    dataset, data = load_data(root="data", name=Config.dataset_name, device=device)
 
     # Load trained model
     model = load_model(
         model_path="checkpoints/best_model.pt",
-        model_type=ModelConfig.model_type,
+        model_type=Config.model_type,
         num_features=dataset.num_features,
         num_classes=dataset.num_classes,
         device=device,

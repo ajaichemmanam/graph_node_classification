@@ -12,7 +12,8 @@ class GraphSAGE(torch.nn.Module):
         self.out = Linear(hidden_channels, num_classes)
         self.dropout = nn.Dropout(p=dropout_rate)
 
-    def forward(self, x, edge_index):
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = self.dropout(x)
