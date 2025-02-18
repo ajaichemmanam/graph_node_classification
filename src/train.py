@@ -1,37 +1,11 @@
 import torch
-from models import MODEL_REGISTRY
-from data.dataset import load_data
-from utils.trainer import Trainer
-from utils.early_stopping import EarlyStopping
-from utils.seed import set_seed
+
 from config.model_config import Config
-
-
-def create_model(model_type, num_features, num_classes):
-    if model_type not in MODEL_REGISTRY:
-        raise ValueError(
-            f"Model type {model_type} not supported. Available models: {list(MODEL_REGISTRY.keys())}"
-        )
-
-    model_class = MODEL_REGISTRY[model_type]
-
-    if model_type == "sage":
-        return model_class(
-            num_features=num_features,
-            hidden_channels=Config.hidden_channels,
-            num_classes=num_classes,
-            dropout_rate=Config.dropout_rate,
-            aggregator=Config.sage_aggregator,
-        )
-    elif model_type == "gcn":
-        return model_class(
-            num_features=num_features,
-            hidden_channels=Config.hidden_channels,
-            num_classes=num_classes,
-            dropout_rate=Config.dropout_rate,
-        )
-    else:
-        raise ValueError(f"Unsupported model type: {model_type}")
+from data.dataset import load_data
+from utils.early_stopping import EarlyStopping
+from utils.model_utils import create_model
+from utils.seed import set_seed
+from utils.trainer import Trainer
 
 
 def main():
@@ -53,7 +27,8 @@ def main():
         model_type=Config.model_type,
         num_features=dataset.num_features,
         num_classes=dataset.num_classes,
-    ).to(device)
+        device=device,
+    )
 
     print(
         f"Training {Config.model_type.upper()} model on {Config.dataset_name} dataset"
@@ -78,11 +53,12 @@ def main():
     # Training loop
     for epoch in range(1, Config.epochs + 1):
         loss = trainer.train_step(data)
-        train_acc, val_acc, test_acc = trainer.test(data)
+        train_acc, train_loss = trainer.evaluate(data, data.train_mask)
+        val_acc, val_loss = trainer.evaluate(data, data.val_mask)
 
         # Early stopping check based on configured metric
-        monitor_value = val_acc if Config.monitor == "accuracy" else loss
-        test_metric = test_acc if Config.monitor == "accuracy" else loss
+        monitor_value = val_acc if Config.monitor == "accuracy" else val_loss
+        test_metric = val_acc if Config.monitor == "accuracy" else val_loss
 
         if early_stopping(monitor_value, test_metric, model):
             print(f"Early stopping at epoch {epoch}")
@@ -92,13 +68,13 @@ def main():
             metric_name = "Accuracy" if Config.monitor == "accuracy" else "Loss"
             print(
                 f"Epoch: {epoch:03d}, Loss: {loss:.4f}, Train: {train_acc:.4f}, "
-                f"Val: {val_acc:.4f}, Test: {test_acc:.4f}, "
-                f"Best Val {metric_name}: {early_stopping.best_score:.4f}"
+                f"Val: {val_acc:.4f}, Best Val {metric_name}: {early_stopping.best_score:.4f}"
             )
 
-    final_metric = early_stopping.best_test_metric
-    metric_name = "Accuracy" if Config.monitor == "accuracy" else "Loss"
-    print(f"Final Test {metric_name}: {final_metric:.4f}")
+    # Load best model and evaluate on test set
+    model.load_state_dict(torch.load(Config.checkpoint_path, weights_only=True))
+    test_acc, test_loss = trainer.evaluate(data, data.test_mask)
+    print(f"Final Test Accuracy: {test_acc:.4f}")
 
 
 if __name__ == "__main__":

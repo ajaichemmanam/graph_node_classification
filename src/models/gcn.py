@@ -1,8 +1,8 @@
 import torch
-import torch.nn.functional as F
-from torch_geometric.nn import GCNConv
-from torch.nn import Linear
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import Linear
+from torch_geometric.nn import GCNConv
 
 
 class GCN(torch.nn.Module):
@@ -24,4 +24,5 @@ class GCN(torch.nn.Module):
         x = self.dropout(x)
 
         x = self.out(x)
+        x = F.log_softmax(x, dim=1)
         return x

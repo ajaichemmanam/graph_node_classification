@@ -1,36 +1,8 @@
 import torch
-from models import MODEL_REGISTRY
-from data.dataset import load_data
+
 from config.model_config import Config
-
-
-def load_model(model_path, model_type, num_features, num_classes, device):
-    """Load a trained model from checkpoint."""
-    if model_type not in MODEL_REGISTRY:
-        raise ValueError(
-            f"Model type {model_type} not supported. Available models: {list(MODEL_REGISTRY.keys())}"
-        )
-
-    model_class = MODEL_REGISTRY[model_type]
-
-    if model_type == "sage":
-        model = model_class(
-            num_features=num_features,
-            hidden_channels=Config.hidden_channels,
-            num_classes=num_classes,
-            dropout_rate=Config.dropout_rate,
-            aggregator=Config.sage_aggregator,
-        )
-    else:  # GCN
-        model = model_class(
-            num_features=num_features,
-            hidden_channels=Config.hidden_channels,
-            num_classes=num_classes,
-            dropout_rate=Config.dropout_rate,
-        )
-
-    model.load_state_dict(torch.load(model_path, weights_only=True))
-    return model.to(device)
+from data.dataset import load_data
+from utils.model_utils import load_model
 
 
 @torch.no_grad()
@@ -51,7 +23,7 @@ def main():
 
     # Load trained model
     model = load_model(
-        model_path="checkpoints/best_model.pt",
+        model_path=Config.checkpoint_path,
         model_type=Config.model_type,
         num_features=dataset.num_features,
         num_classes=dataset.num_classes,

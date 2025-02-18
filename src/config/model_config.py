@@ -30,4 +30,3 @@ class Config:
 
     # Dataset parameters
     dataset_name: str = "Cora"
-
