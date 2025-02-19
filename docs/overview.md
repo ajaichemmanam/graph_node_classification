@@ -25,6 +25,7 @@ Usual multi level classification, uses cross entropy loss. But since this is a g
 So added a log softmax layer at the end of the model.
 
 Used the given parameters for learning rate, weight decay and hidden channels.
+Added a config file to store all the parameters.
 
 - For each epoch in Training Loop:
 
@@ -43,8 +44,14 @@ Added early stopping to prevent overfitting. Its configured to be based on valid
   3. Stops training if no improvement for specified patience period
   4. Maintains record of best metric
 
-Initial training itself, showed 70+ test accuracy.
-Tried adding some more layers and dropout as suggested. Got around 80% test accuracy at the end with 64 hidden channels.
+
+## Intial Results
+
+![GCN Training](./docs/GCN.png)
+![GraphSAGE Training](./docs/SAGE.png)
+
+![Inference](./docs/inference.png)
+
 For further improving the accuracy, use hyperparameter tuning tools such as optuna.
 
 ### Graph Neural Networks
