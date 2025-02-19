@@ -48,13 +48,13 @@ Added early stopping to prevent overfitting. Its configured to be based on valid
 ## Intial Results
 
 GCN Training Output
-![GCN Training](./GCN.png)
+![GCN Training](./assets/GCN.png)
 
 GraphSAGE Training Output
-![GraphSAGE Training](./SAGE.png)
+![GraphSAGE Training](./assets/SAGE.png)
 
 GraphSage Inference Output
-![Inference](./inference.png)
+![Inference](./assets/Inference.png)
 
 For further improving the accuracy, use hyperparameter tuning tools such as optuna.
 
