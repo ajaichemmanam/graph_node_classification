@@ -48,19 +48,3 @@ optimizer = torch.optim.Adam(
     weight_decay=Config.weight_decay
 )
 ```
-
-### 2. Training Loop
-
-- For each epoch:
-  1. Forward pass and loss calculation using NLL loss
-  2. Backward pass and parameter updates
-  3. Evaluation on train and validation sets
-  4. Early stopping check based on configured metric (loss or accuracy)
-  5. Save best model if monitored metric improves
-
-### 3. Early Stopping
-
-- Monitors validation metric (configurable: loss or accuracy)
-- Saves best model state to configured checkpoint path
-- Stops training if no improvement for specified patience period
-- Maintains record of best metric
